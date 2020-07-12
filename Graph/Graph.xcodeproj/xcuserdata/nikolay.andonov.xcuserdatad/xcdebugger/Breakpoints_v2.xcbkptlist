@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "1285C47B-7694-4F02-B492-005FC40AAB4C"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B71EC36F-4268-441D-8B20-C316AA0DF0FD"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "GraphAlgorithms.h"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "157"
+            endingLineNumber = "157"
+            landmarkName = "findShortestPathBetween(startingNode, toNode)"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  uuid = "B71EC36F-4268-441D-8B20-C316AA0DF0FD - ced2a951044d0828"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "GraphAlgorithms&lt;int&gt;::findShortestPathBetween(Node&lt;int&gt;*, Node&lt;int&gt;*)"
+                  moduleName = "Graph"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nikolay.andonov/Desktop/Graph/GraphAlgorithms.h"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "157"
+                  endingLineNumber = "157"
+                  offsetFromSymbolStart = "684">
+               </Location>
+               <Location
+                  uuid = "B71EC36F-4268-441D-8B20-C316AA0DF0FD - ced2a951044d0828"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "GraphAlgorithms&lt;int&gt;::findShortestPathBetween(Node&lt;int&gt;*, Node&lt;int&gt;*)"
+                  moduleName = "Graph"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nikolay.andonov/Desktop/Graph/GraphAlgorithms.h"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "157"
+                  endingLineNumber = "157"
+                  offsetFromSymbolStart = "775">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>
