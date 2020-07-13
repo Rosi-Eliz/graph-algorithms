@@ -28,16 +28,20 @@ int main()
 //    cout<<endl;
 //    copyGraph.print();
     
+//    GraphAlgorithms<int> dGraph(1);
+//    Node<int>* node2 = dGraph.addNode(dGraph.root, 2, 1);
+//    Node<int>* node3 = dGraph.addNode(dGraph.root, 3, 5);
+//    dGraph.connectNodes(node2, node3, 1);
+//    Node<int>* node4 = dGraph.addNode(node2, 4, 6);
+//    dGraph.connectNodes(node2, node4, 6);
+//    dGraph.connectNodes(node4, node3, 3);
+//    dGraph.findShortestPathBetween(dGraph.root, node4);
+    
     GraphAlgorithms<int> dGraph(1);
-    Node<int>* node2 = dGraph.addNode(dGraph.root, 2, 1);
-    Node<int>* node3 = dGraph.addNode(dGraph.root, 3, 5);
-    dGraph.connectNodes(node2, node3, 1);
-    Node<int>* node4 = dGraph.addNode(node2, 4, 6);
-    dGraph.connectNodes(node2, node4, 6);
-    dGraph.connectNodes(node4, node3, 3);
-    
-    dGraph.findShortestPathBetween(dGraph.root, node4);
-    
+    vector<int> degrees = {2,2,1,1};
+    vector<int> values = {1,2,3,4};
+    GraphAlgorithms<int> dGraph2 = GraphAlgorithms<int>::constructGraph(degrees, values);
+    dGraph2.print();
     return 0;
 }
 
