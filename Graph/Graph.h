@@ -59,6 +59,8 @@ public:
     void recursiveGraphPopulation(Node<T>* targetNode, Node<T>* sourceNode, vector<Node<T>*>& sourceVisitedNodes, unordered_map<Node<T>*, Node<T>*>& nodesLookUpTable);
     Graph(T rootValue, bool directioned = false, bool weighted = false);
     Graph(const Graph& graph);
+    Graph() {};
+    
     void operator=(const Graph& graph);
     void eraseEdge(Node<T>* node, Edge<T>* edge);
     void recursiveDeletion(Node<T>* node, vector<Node<T>*>& deletedNodes, vector<Edge<T>*>& deletedEdges);
@@ -170,6 +172,8 @@ Graph<T>::Graph(const Graph& graph)
 {
     *this = graph;
 }
+
+
 
 template<typename T>
 void Graph<T>::eraseEdge(Node<T>* node, Edge<T>* edge)
@@ -286,7 +290,7 @@ void  Graph<T>::connectNodes(Node<T>* first, Node<T>* second, int lenght)
 }
 
 template<typename T>
-void  Graph<T>::deleteNode(Node<T>* node)
+void Graph<T>::deleteNode(Node<T>* node)
 {
     for(Edge<T>* e: node->getAllEdges())
     {

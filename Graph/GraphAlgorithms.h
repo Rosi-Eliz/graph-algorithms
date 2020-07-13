@@ -25,16 +25,118 @@ template<typename T>
 class GraphAlgorithms : public Graph<T>{
 public:
     GraphAlgorithms(T rootValue, bool directioned = false, bool weighted = false) : Graph<T>(rootValue, directioned, weighted) {};
+    void assignValueToNodes(vector<T> varticeValues);
+    static GraphAlgorithms<T> constructGraph(vector<int> verticeDegrees, vector<T> varticeValues);
+    GraphAlgorithms(int** matrix, vector<T> varticeValues);
     
     // MARK: - Dijkstra
     
     PathDescriptor<T>& getPathDescriptor(Node<T>* node, vector<PathDescriptor<T>>& pathDescriptorsTable);
     int shortestPathDescriptorIndex(vector<PathDescriptor<T>>& pathDescriptorsTable, vector<Node<T>*>& unvisitedNodes);
     void deleteUnvisitedNode(Node<T> *shortestPathNode, vector<Node<T> *> &unvisitedNodes);
-    
     void dijkstraTableAssignment(vector<Node<T>*>& visitedNodes, vector<Node<T>*>& unvisitedNodes, vector<PathDescriptor<T>>& pathDescriptorsTable);
     void findShortestPathBetween(Node<T>* startingNode, Node<T>* toNode);
+    
+    //MARK: Minimum Spanning Tree
+    //Prim's algorithm
+    vector<Edge<T>*> composeMinimumSpanningTree();
 };
+
+
+template<typename T>
+void GraphAlgorithms<T>::assignValueToNodes(vector<T> varticeValues)
+{
+    if(varticeValues.size() != this->nodes.size())
+        throw runtime_error("Invalid number of node values!");
+    
+    for(int i{0}; i < this->nodes.size(); i++)
+    {
+        this->nodes[i]->value = varticeValues[i];
+    }
+    this->root = this->nodes[0];
+}
+
+template<typename T>
+GraphAlgorithms<T> GraphAlgorithms<T>::constructGraph(vector<int> verticeDegrees, vector<T> varticeValues)
+{
+    int nodesCount = static_cast<int>(verticeDegrees.size());
+    int **adjacencyMatrix = new int*[nodesCount];
+    for(int row{0}; row < nodesCount; row++)
+    {
+        for(int col{0}; col < nodesCount; col++)
+        {
+            adjacencyMatrix[row] = new int[col];
+        }
+    }
+    
+    for(int row{0}; row < nodesCount - 1; row++) {
+        for(int col{row + 1}; col < nodesCount; col++) {
+            
+            if(verticeDegrees[row] > 0 && verticeDegrees[col] > 0) {
+                adjacencyMatrix[row][col] = 1;
+                
+                adjacencyMatrix[col][row] = 1;
+                verticeDegrees[col] -= 1;
+                verticeDegrees[row] -= 1;
+            }
+            
+        }
+    }
+    return GraphAlgorithms<T>(adjacencyMatrix, varticeValues);
+}
+
+
+template<typename T>
+GraphAlgorithms<T>::GraphAlgorithms(int** matrix, vector<T> verticeValues) : Graph<T>()
+{
+    int nodesCount = static_cast<int>(verticeValues.size());
+    for(int i{0}; i < nodesCount; i++)
+    {
+        Node<T>* newNode = new Node<T>;
+        this->nodes.push_back(newNode);
+    }
+    
+    for(int row{0}; row < nodesCount; row++)
+    {
+        for(int col{0}; col < nodesCount; col++)
+        {
+            if(row == col)
+                continue;
+            
+            if(matrix[row][col] == 1)
+            {
+                Node<T>* startingNode = this->nodes[row];
+                Node<T>* toNode = this->nodes[col];
+                if(!this->edges.empty())
+                {
+                    bool areAlreadyConnected = false;
+                    
+                    for(Edge<T>* e: this->edges)
+                    {
+                        if((e->fromNode == startingNode || e->fromNode == toNode) && (e->toNode == startingNode || e->toNode == toNode))
+                        {
+                            areAlreadyConnected = true;
+                            break;
+                        }
+                    }
+                    if(!areAlreadyConnected)
+                        this->connectNodes(this->nodes[row], this->nodes[col]);
+                }
+                else {
+                    this->connectNodes(startingNode, toNode);
+                }
+            }
+        }
+    }
+    
+    assignValueToNodes(verticeValues);
+    for(int row{0}; row < nodesCount; row++)
+    {
+        delete[] matrix[row];
+    }
+    delete[] matrix;
+}
+
 
 // MARK: - Dijkstra
 
@@ -50,21 +152,21 @@ int GraphAlgorithms<T>::shortestPathDescriptorIndex(vector<PathDescriptor<T>>& p
     for(int i{0}; i < result.size() - 1; i++)
     {
         for(int j{i+1}; j < result.size(); j++)
-       
+            
         {
-             if(result[i]->distanceFromStartingNode > result[j]->distanceFromStartingNode)
-                 swap(result[i], result[j]);
+            if(result[i]->distanceFromStartingNode > result[j]->distanceFromStartingNode)
+                swap(result[i], result[j]);
         }
     }
     PathDescriptor<T>* unvisitedNodePathDescriptor = nullptr;
     for(PathDescriptor<T>* descriptor : result)
-       {
-           if(find(unvisitedNodes.begin(), unvisitedNodes.end(), descriptor->node) != unvisitedNodes.end())
-           {
-               unvisitedNodePathDescriptor = descriptor;
-               break;
-           }
-       }
+    {
+        if(find(unvisitedNodes.begin(), unvisitedNodes.end(), descriptor->node) != unvisitedNodes.end())
+        {
+            unvisitedNodePathDescriptor = descriptor;
+            break;
+        }
+    }
     if(unvisitedNodePathDescriptor == nullptr)
         throw runtime_error("Incorrect data source");
     
@@ -74,7 +176,7 @@ int GraphAlgorithms<T>::shortestPathDescriptorIndex(vector<PathDescriptor<T>>& p
             return i;
     }
     
-     throw runtime_error("Incorrect data source");
+    throw runtime_error("Incorrect data source");
 }
 
 template<typename T>
@@ -154,11 +256,11 @@ void GraphAlgorithms<T>::findShortestPathBetween(Node<T>* startingNode, Node<T>*
     {
         PathDescriptor<T>& currentDescriptor = getPathDescriptor(iterativeNode, pathDescriptorsTable);
         if(currentDescriptor.previousNode != nullptr)
-        pathway.insert(pathway.begin(), currentDescriptor.previousNode);
+            pathway.insert(pathway.begin(), currentDescriptor.previousNode);
         
         iterativeNode = currentDescriptor.previousNode;
     }
-     
+    
     for(Node<T>* node : pathway)
     {
         cout<<node->value<<" ";
@@ -168,4 +270,67 @@ void GraphAlgorithms<T>::findShortestPathBetween(Node<T>* startingNode, Node<T>*
     cout << endl;
     cout << "Distance: " << pathDistance << endl;
 }
+
+template<typename T>
+inline void deleteNode(Node<T> *outboundNode, vector<Node<T> *>& unvisitedNodes) {
+    for(int i{0}; i < unvisitedNodes.size(); i++)
+    {
+        if(unvisitedNodes[i] == outboundNode)
+        {
+            unvisitedNodes.erase(unvisitedNodes.begin() + i);
+            break;
+        }
+    }
+}
+
+//MARK: Minimum Spanning Tree
+template<typename T>
+vector<Edge<T>*> GraphAlgorithms<T>::composeMinimumSpanningTree()
+{
+    vector<Node<T>*> visitedNodes;
+    vector<Node<T>*> unvisitedNodes = this->nodes;
+    vector<Edge<T>*> mstEdges;
+    unordered_map<Node<T>*, int> nodesKeyValues;
+    for(Node<T>* node : unvisitedNodes)
+    {
+        nodesKeyValues.emplace(node, INFINITY);
+    }
+    Node<T>* currentNode = this->nodes[rand() % this->nodes.size()];
+    nodesKeyValues[currentNode] = 0;
+    visitedNodes.push_back(currentNode);
+    deleteNode(currentNode, unvisitedNodes);
+    while(!unvisitedNodes.empty())
+    {
+        Edge<T>* minimumWeightEdge = nullptr;
+        for(Edge<T>* edge : currentNode->getAllEdges())
+        {
+            if(minimumWeightEdge == nullptr)
+                minimumWeightEdge = edge;
+            
+            else
+                minimumWeightEdge = edge->weight < minimumWeightEdge->weight ? edge : minimumWeightEdge;
+        }
+        Node<T>* outboundNode =  currentNode == minimumWeightEdge->toNode ? minimumWeightEdge->fromNode : minimumWeightEdge->toNode;
+        if(find(visitedNodes.begin(), visitedNodes.end(), outboundNode) ==  visitedNodes.end())
+        {
+            nodesKeyValues[outboundNode] = nodesKeyValues[outboundNode] > minimumWeightEdge->weight ?  minimumWeightEdge->weight :  nodesKeyValues[outboundNode];
+            visitedNodes.push_back(outboundNode);
+            mstEdges.push_back(minimumWeightEdge);
+            
+            deleteNode(outboundNode, unvisitedNodes);
+        }
+        Node<T>* lowestCostNode = nullptr;
+        for(Node<T>* node: unvisitedNodes)
+        {
+            if(lowestCostNode == nullptr)
+                lowestCostNode = node;
+                       
+            else
+                lowestCostNode = nodesKeyValues[node] < nodesKeyValues[lowestCostNode] ? node : lowestCostNode;
+        }
+        currentNode = lowestCostNode;
+    }
+    return mstEdges;
+}
+
 #endif /* GraphAlgorithms_h */
