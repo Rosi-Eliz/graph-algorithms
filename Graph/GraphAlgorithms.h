@@ -10,6 +10,7 @@
 #define GraphAlgorithms_h
 #include "Graph.h"
 #include <vector>
+#include <list>
 
 #define STARTING_DISTANCE 0
 
@@ -19,6 +20,10 @@ struct PathDescriptor{
     int distanceFromStartingNode;
     Node<T>* previousNode;
     PathDescriptor(Node<T>* node, int distanceFromStartingNode = INFINITY, Node<T>* previousNode = nullptr) : node(node), distanceFromStartingNode(distanceFromStartingNode), previousNode(previousNode) {} ;
+    bool operator==(const PathDescriptor<T>& pathDescriptor)
+    {
+        return node == pathDescriptor.node && distanceFromStartingNode == pathDescriptor.distanceFromStartingNode && previousNode == pathDescriptor.previousNode;
+    }
 };
 
 template<typename T>
@@ -40,6 +45,10 @@ public:
     //MARK: Minimum Spanning Tree
     //Prim's algorithm
     vector<Edge<T>*> composeMinimumSpanningTree();
+     //MARK: Kosaraju's algorithm
+    int stronglyConnectedVertices();
+    //MARK: Halmiltonian path problem
+
 };
 
 
@@ -331,6 +340,111 @@ vector<Edge<T>*> GraphAlgorithms<T>::composeMinimumSpanningTree()
         currentNode = lowestCostNode;
     }
     return mstEdges;
+}
+
+//MARK: Kosaraju's algorithm
+
+template<typename T>
+void visitNode(Node<T>* node, vector<Node<T>*>& visitedNodes, list<Node<T>*>& connectedVertices)
+{
+    if(find(visitedNodes.begin(), visitedNodes.end(), node) == visitedNodes.end())
+    {
+        visitedNodes.push_back(node);
+        for(Edge<T>* outboundEdge : node->outboundEdges)
+        {
+            visitNode(outboundEdge->toNode, visitedNodes, connectedVertices);
+        }
+        connectedVertices.push_front(node);
+    }
+}
+
+template<typename T>
+int findInAssignedComponents(Node<T>* node, vector<vector<Node<T>*>> assignedComponents)
+{
+    for(int i{0}; i < assignedComponents.size(); i++)
+    {
+        vector<Node<T>*>& component = assignedComponents[i];
+        if(find(component.begin(), component.end(), node) != component.end())
+            return i;
+    }
+    return -1;
+}
+
+template<typename T>
+void assign(Node<T>* node, Node<T>* root, vector<vector<Node<T>*>>& assignedComponents, vector<Node<T>*>& visitedNodes)
+{
+    //Graph cycle detection
+    if(find(visitedNodes.begin(), visitedNodes.end(), node) != visitedNodes.end())
+    {
+        return;
+    }
+    
+    if(node == root)
+    {
+        if(findInAssignedComponents(node, assignedComponents) == -1) {
+            vector<Node<T>*> connectedComponent;
+            connectedComponent.push_back(node);
+            assignedComponents.push_back(connectedComponent);
+        }
+        else
+        {
+            return;
+        }
+    }
+        
+    visitedNodes.push_back(node);
+    for(Edge<T>* inboundEdge : node->inboundEdges)
+    {
+        if(find(visitedNodes.begin(), visitedNodes.end(), inboundEdge->fromNode) == visitedNodes.end())
+        {
+            int index = findInAssignedComponents(root, assignedComponents);
+            assign(inboundEdge->fromNode, root, assignedComponents, visitedNodes);
+            assignedComponents[index].push_back(node);
+        }
+    }
+};
+
+template<typename T>
+bool subcomponentsIncluded(vector<list<Node<T>*>>& aggregatedSubComponents, list<Node<T>*> connectedVertices)
+{
+    for(list<Node<T>*>& list : aggregatedSubComponents)
+    {
+        for(Node<T>* element : list)
+        {
+            if(find(connectedVertices.begin(), connectedVertices.end(), element) != connectedVertices.end())
+            {
+                if(list.size() < connectedVertices.size())
+                    list = connectedVertices;
+                return true;
+            }
+        }
+    }
+    return false;
+};
+
+template<typename T>
+ int GraphAlgorithms<T>::stronglyConnectedVertices()
+{
+    vector<Node<T>*> visitedNodes;
+    vector<Node<T>*> unvisitedNodes = this->nodes;
+    vector<vector<Node<T>*>> assignedComponents;
+    vector<list<Node<T>*>> aggregatedSubComponents;
+    for(Node<T>* node : unvisitedNodes)
+    {
+      list<Node<T>*> connectedVertices;
+      visitNode(node, visitedNodes, connectedVertices);
+      if(!subcomponentsIncluded(aggregatedSubComponents, connectedVertices))
+        aggregatedSubComponents.push_back(connectedVertices);
+    }
+    visitedNodes = vector<Node<T>*>();
+    for(list<Node<T>*> list : aggregatedSubComponents)
+    {
+        for(Node<T>* element : list)
+        {
+            assign(element, element, assignedComponents, visitedNodes);
+        }
+    }
+    return assignedComponents.size();
 }
 
 #endif /* GraphAlgorithms_h */

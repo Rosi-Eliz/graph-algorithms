@@ -76,6 +76,7 @@ public:
     vector<Node<T>*> kahnTopologicalSorting();
     void print() const;
     void printFromNode(Node<T>* node, list<Node<T>*>& visitedNodes) const;
+    int** matrixRepresentation() const;
 };
 
 template<typename T>
@@ -462,6 +463,39 @@ void Graph<T>::print() const
 {
     list<Node<T>*> visitedNodes;
     printFromNode(nodes[0], visitedNodes);
+}
+
+template<typename T>
+int** Graph<T>::matrixRepresentation() const
+{
+    int** adjacencyMatrix = new int*[nodes.size()];
+    for(int i{0}; i < nodes.size(); i++)
+    {
+        adjacencyMatrix[i] = new int[nodes.size()];
+    }
+    
+    for(int row{0}; row < nodes.size(); row++)
+    {
+        for(int column{0}; column < nodes.size(); column++)
+        {
+            if(directioned)
+            {
+                if(findOutgoingEdgeFromTo(nodes[row], nodes[column]))
+                    adjacencyMatrix[row][column] = 1;
+                else
+                   adjacencyMatrix[row][column] = 0;
+            }
+            else
+            {
+                vector<Edge<T>*> currentNodeEdges = nodes[row]->getAllEdges();
+                if(find(currentNodeEdges.begin(), currentNodeEdges.end(), nodes[column]) != currentNodeEdges.end)
+                    adjacencyMatrix[row][column] = 1;
+                else
+                   adjacencyMatrix[row][column] = 0;
+            }
+        }
+    }
+    return adjacencyMatrix;
 }
 
 
